@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Simulasi dengan Animasi - All-in-One</title>
+    <style>
+        /* CSS Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ebee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 350px;
+            transition: all 0.3s ease;
+        }
+        .character {
+            width: 120px;
+            height: 120px;
+            background: url('https://via.placeholder.com/120x120?text=AI') no-repeat center;
+            background-size: cover;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            border: 5px solid #4CAF50;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            /* Animasi Awal */
+            animation: bounce 2s infinite ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        /* Animasi Khas Status */
+        .character.logged-in {
+            animation: none;
+            border-color: #2196F3;
+            background: url('https://via.placeholder.com/120x120?text=Siap+Chat') no-repeat center;
+            background-size: cover;
+        }
+        .character.logged-out {
+            animation: pulse 1s 3; /* Animasi detak 3 kali saat logout */
+            border-color: #FF9800;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .form-section, .chat-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .form-section.show, .chat-section.show {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        input[type="text"], input[type="password"], #question {
+            margin: 8px 0;
+            padding: 12px;
+            width: calc(100% - 24px);
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus, #question:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #logout-btn {
+            background-color: #f44336;
+            margin-top: 5px;
+        }
+        #logout-btn:hover {
+            background-color: #da190b;
+        }
+
+        #chat-box {
+            height: 250px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            text-align: left;
+            background-color: #f9f9f9;
+        }
+        #chat-box p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+        #chat-box strong {
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="character" id="character"></div>
+        
+        <div class="form-section" id="login-form">
+            <h2>Masuk ke AI Chat</h2>
+            <input type="text" id="username" placeholder="Username (contoh: user)">
+            <input type="password" id="password" placeholder="Password (contoh: 123)">
+            <button onclick="login()">Login</button>
+        </div>
+        
+        <div class="chat-section" id="chat-interface">
+            <h2>AI Simulasi Chat</h2>
+            <div id="chat-box"></div>
+            <input type="text" id="question" placeholder="Tanyakan sesuatu di sini...">
+            <button onclick="askAI()">Kirim Pertanyaan</button>
+            <button id="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Logic
+        let isLoggedIn = false;
+
+        // Tampilkan form login saat halaman dimuat
+        window.onload = function() {
+            document.getElementById('login-form').classList.add('show');
+        };
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Logika validasi sederhana
+            if (username === "user" && password === "123") {
+                isLoggedIn = true;
+                
+                // Transisi UI
+                document.getElementById('login-form').classList.remove('show');
+                document.getElementById('chat-interface').classList.add('show');
+                
+                // Update Karakter dan Animasi
+                const character = document.getElementById('character');
+                character.classList.remove('logged-out');
+                character.classList.add('logged-in');
+                character.classList.remove('bounce'); // Hentikan animasi awal
+
+                setTimeout(() => {
+                    alert('Login Berhasil! Selamat datang di AI Simulasi.');
+                }, 300);
+            } else {
+                alert('Username atau Password salah. Coba: user / 123');
+            }
+        }
+
+        function askAI() {
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value.trim();
+            
+            if (question) {
+                const chatBox = document.getElementById('chat-box');
+                // Tampilkan Pertanyaan Anda
+                chatBox.innerHTML += `<p><strong>Anda:</strong> ${question}</p>`;
+                
+                // Bersihkan input
+                questionInput.value = '';
+
+                // Tampilkan Pesan "AI sedang mengetik..."
+                chatBox.innerHTML += `<p id="typing-indicator"><strong>AI:</strong> <span style="font-style:italic; color:#666;">AI sedang berpikir...</span></p>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                // Simulasi respons AI
+                setTimeout(() => {
+                    const typingIndicator = document.getElementById('typing-indicator');
+                    if (typingIndicator) {
+                        typingIndicator.remove(); // Hapus indikator 'berpikir'
+                    }
+                    
+                    const response = generateResponse(question);
+                    chatBox.innerHTML += `<p><strong>AI:</strong> ${response}</p>`;
+                    chatBox.scrollTop = chatBox.scrollHeight; // Scroll ke bawah
+                }, 1500); // Penundaan 1.5 detik
+            }
+        }
+
+        function generateResponse(question) {
+            // Logika respons yang sedikit lebih cerdas dari sebelumnya (masih simulasi)
+            const lowerQuestion = question.toLowerCase();
+
+            if (lowerQuestion.includes("siapa") || lowerQuestion.includes("kamu")) {
+                return "Saya adalah AI Simulasi yang dibuat dengan JavaScript. Saya di sini untuk menunjukkan bagaimana interaksi chat bekerja.";
+            } else if (lowerQuestion.includes("terima kasih") || lowerQuestion.includes("makasih")) {
+                return "Sama-sama! Senang bisa membantu Anda.";
+            } else if (lowerQuestion.includes("umur") || lowerQuestion.includes("lahir")) {
+                return "Sebagai program komputer, saya tidak punya umur atau tanggal lahir, tapi saya dibuat hari ini!";
+            } else if (lowerQuestion.includes("suka") || lowerQuestion.includes("favorit")) {
+                return "Saya paling suka memproses data dan kode. Bagaimana dengan Anda?";
+            } else {
+                // Jawaban acak jika tidak ada kata kunci yang cocok
+                const responses = [
+                    "Itu pertanyaan yang menarik! Saya akan menyimpannya sebagai data untuk pembelajaran.",
+                    "Menurut data yang saya miliki, jawabannya berada di luar cakupan simulasi saya.",
+                    "Coba tanyakan hal lain yang lebih umum atau sederhana!",
+                    "Saya tidak yakin, apakah Anda bisa memberikan konteks lebih lanjut?",
+                    "Jawaban untuk itu mungkin adalah 42, tetapi hanya dalam konteks yang sangat khusus.",
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            
+            // Transisi UI
+            document.getElementById('chat-interface').classList.remove('show');
+            document.getElementById('login-form').classList.add('show');
+            document.getElementById('question').value = ''; // Bersihkan input
+            document.getElementById('chat-box').innerHTML = ''; // Bersihkan chat
+
+            // Update Karakter dan Animasi
+            const character = document.getElementById('character');
+            character.classList.remove('logged-in');
+            character.classList.add('logged-out'); // Animasi logout
+
+            setTimeout(() => {
+                // Reset karakter ke kondisi awal (menari/bounce) setelah animasi logout
+                character.classList.remove('logged-out');
+                character.classList.add('bounce');
+                alert('Logout berhasil. Sampai jumpa lagi!');
+            }, 1000); 
+        }
+    </script>
+</body>
+</html>
